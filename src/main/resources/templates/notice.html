@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="">
+    <meta name="author" content="">
+
+    <title>Notice Tables</title>
+
+    <!-- Custom fonts for this template -->
+    <link href="/bootstrap/vendor/fontawesome-free/css/all.min.css" rel="stylesheet" type="text/css">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@100..900&display=swap" rel="stylesheet">
+
+    <!-- Custom styles for this template -->
+    <link href="/bootstrap/css/sb-admin-2.min.css" rel="stylesheet">
+
+    <!-- Custom styles for this page -->
+    <link href="/bootstrap/vendor/datatables/dataTables.bootstrap4.min.css" rel="stylesheet">
+
+</head>
+
+<body id="page-top">
+
+<!-- Page Wrapper -->
+<div id="wrapper">
+
+    <!-- Sidebar -->
+    <div th:replace="~{sidebar}"></div>
+
+    <!-- Content Wrapper -->
+    <div id="content-wrapper" class="d-flex flex-column">
+
+        <!-- Main Content -->
+        <div id="content">
+
+            <!-- Topbar -->
+            <div th:replace="~{topbar}"></div>
+
+
+            <!-- Begin Page Content -->
+            <div class="container-fluid">
+
+                <!-- Page Heading -->
+                <h1 class="h3 mb-2 text-gray-800">Notice</h1>
+                <!-- DataTales Example -->
+                <div class="card shadow mb-4">
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
+                                <thead>
+                                <tr>
+                                    <th>Notice_id</th>
+                                    <th>Admin_Name</th>
+                                    <th>title</th>
+                                    <th>Content</th>
+                                    <th>Create_at</th>
+                                    <th>Update_at</th>
+                                    <th>Update</th>
+                                    <th>Delete</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                <tr th:each="notice : ${notices}">
+                                    <td th:text="${notice.noticeId}">Notice ID</td>
+                                    <td th:text="${notice.admin.name}">Admin Name</td>
+                                    <td th:text="${notice.title}">Title</td>
+                                    <td th:text="${notice.content}">Content</td>
+                                    <td th:text="${#temporals.format(notice.createdAt, 'yyyy-MM-dd')}">Create At</td>
+                                    <td th:text="${#temporals.format(notice.updatedAt, 'yyyy-MM-dd')}">Update At</td>
+                                    <td>
+                                        <button type="button" class="btn btn-primary"
+                                                th:data-id="${notice.noticeId}"
+                                                th:data-title="${notice.title}"
+                                                th:data-content="${notice.content}"
+                                                onclick="openUpdateModal(this)">수정
+                                        </button>
+                                    </td>
+                                    <td>
+                                        <button type="button" class="btn btn-danger"
+                                                th:data-id="${notice.noticeId}"
+                                                onclick="openDeleteModal(this)">삭제
+                                        </button>
+                                    </td>
+                                </tr>
+                                </tbody>
+                            </table>
+                            <button type="button" class="btn btn-primary"
+                                    onclick="openRegisterModal(this)">등록
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+            <!-- /.container-fluid -->
+
+        </div>
+        <!-- End of Main Content -->
+
+        <!-- Footer -->
+        <footer class="sticky-footer bg-white">
+            <div class="container my-auto">
+                <div class="copyright text-center my-auto">
+                    <span>Copyright &copy; Your Website 2020</span>
+                </div>
+            </div>
+        </footer>
+        <!-- End of Footer -->
+
+    </div>
+    <!-- End of Content Wrapper -->
+
+</div>
+<!-- End of Page Wrapper -->
+
+<!-- Scroll to Top Button-->
+<a class="scroll-to-top rounded" href="#page-top">
+    <i class="fas fa-angle-up"></i>
+</a>
+
+<!-- Logout Modal-->
+<div class="modal fade" id="logoutModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+     aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">Ready to Leave?</h5>
+                <button class="close" type="button" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">×</span>
+                </button>
+            </div>
+            <div class="modal-body">Select "Logout" below if you are ready to end your current session.</div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" type="button" data-dismiss="modal">Cancel</button>
+                <a class="btn btn-primary" href="login.html">Logout</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal 1 for Update-->
+<div class="modal fade" id="updateModal" tabindex="-1" role="dialog" aria-labelledby="updateModalLabel"
+     aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="updateModalLabel">Update Notice</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="updateForm">
+                    <div class="form-group">
+                        <label for="noticeTitle">Title</label>
+                        <input type="text" class="form-control" id="noticeTitle">
+                        <small class="text-danger" id="updateTitleError"></small>
+                    </div>
+                    <div class="form-group">
+                        <label for="noticeContent">Content</label>
+                        <textarea class="form-control" id="noticeContent" rows="10"></textarea>
+                        <small class="text-danger" id="updateContentError"></small>
+                    </div>
+                    <input type="hidden" id="noticeId">
+                    <button type="submit" class="btn btn-primary">Save changes</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal 2 for Registration -->
+<div class="modal fade" id="registerModal" tabindex="-1" role="dialog" aria-labelledby="registerModalLabel"
+     aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="registerModalLabel">Register Notice</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="registerForm">
+                    <div class="form-group">
+                        <label for="registerNoticeTitle">Title</label>
+                        <input type="text" class="form-control" id="registerNoticeTitle">
+                        <small class="text-danger" id="registerTitleError"></small>
+                    </div>
+                    <div class="form-group">
+                        <label for="registerNoticeContent">Content</label>
+                        <textarea class="form-control" id="registerNoticeContent" rows="10"></textarea>
+                        <small class="text-danger" id="registerContentError"></small>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Save changes</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal 3 for Delete-->
+<div class="modal fade" id="deleteModal" tabindex="-1" role="dialog" aria-labelledby="modalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="modalLabel">게시물 삭제</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body" id="modalMessage">
+                정말 삭제하시겠습니까?
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-danger" id="confirmDeleteButton">삭제</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Bootstrap core JavaScript-->
+<script src="/bootstrap/vendor/jquery/jquery.min.js"></script>
+<script src="/bootstrap/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+
+<!-- Core plugin JavaScript-->
+<script src="/bootstrap/vendor/jquery-easing/jquery.easing.min.js"></script>
+
+<!-- Custom scripts for all pages-->
+<script src="/bootstrap/js/sb-admin-2.min.js"></script>
+
+<!-- Page level plugins -->
+<script src="/bootstrap/vendor/datatables/jquery.dataTables.min.js"></script>
+<script src="/bootstrap/vendor/datatables/dataTables.bootstrap4.min.js"></script>
+
+<!-- Page level custom scripts -->
+<script src="/bootstrap/js/demo/datatables-demo.js"></script>
+
+<script>
+    function openUpdateModal(button) {
+    const noticeId = button.getAttribute('data-id');
+    const noticeTitle = button.getAttribute('data-title');
+    const noticeContent = button.getAttribute('data-content');
+
+    // Modal에 데이터 설정
+    document.getElementById('noticeId').value = noticeId;
+    document.getElementById('noticeTitle').value = noticeTitle;
+    document.getElementById('noticeContent').value = noticeContent;
+
+    // Modal 열기
+    $('#updateModal').modal('show');
+    }
+
+// 업데이트 폼 전송
+document.getElementById('updateForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+
+    const noticeId = document.getElementById('noticeId').value;
+    const noticeTitle = document.getElementById('noticeTitle').value;
+    const noticeContent = document.getElementById('noticeContent').value;
+
+    // 이전 에러 메시지 초기화
+    document.getElementById('updateTitleError').textContent = '';
+    document.getElementById('updateContentError').textContent = '';
+
+    fetch(`/api/notice/${noticeId}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ title: noticeTitle, content: noticeContent })
+    })
+    .then(response => {
+        if (!response.ok) {
+            return response.json().then(errors => {
+                displayUpdateValidationErrors(errors);
+            });
+        } else {
+            window.location.reload(); // 성공 시 페이지 새로고침
+        }
+    })
+    .catch(error => console.error('Error:', error));
+});
+
+// 유효성 검사 오류 표시 함수 (업데이트 폼)
+function displayUpdateValidationErrors(errors) {
+    errors.forEach(error => {
+        if (error.field === 'title') {
+            document.getElementById('updateTitleError').textContent = error.defaultMessage;
+        } else if (error.field === 'content') {
+            document.getElementById('updateContentError').textContent = error.defaultMessage;
+        }
+    });
+}
+</script>
+
+<script>
+    function openRegisterModal() {
+        $('#registerModal').modal('show');
+    }
+
+// 등록 폼 전송
+document.getElementById('registerForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+
+    const noticeTitle = document.getElementById('registerNoticeTitle').value;
+    const noticeContent = document.getElementById('registerNoticeContent').value;
+
+    // 이전 에러 메시지 초기화
+    document.getElementById('registerTitleError').textContent = '';
+    document.getElementById('registerContentError').textContent = '';
+
+    fetch('/api/notice', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ title: noticeTitle, content: noticeContent })
+    })
+    .then(response => {
+        if (!response.ok) {
+            return response.json().then(errors => {
+                displayRegisterValidationErrors(errors);
+            });
+        } else {
+            window.location.reload(); // 성공 시 페이지 새로고침
+        }
+    })
+    .catch(error => console.error('Error:', error));
+});
+
+// 유효성 검사 오류 표시 함수 (등록 폼)
+function displayRegisterValidationErrors(errors) {
+    errors.forEach(error => {
+        if (error.field === 'title') {
+            document.getElementById('registerTitleError').textContent = error.defaultMessage;
+        } else if (error.field === 'content') {
+            document.getElementById('registerContentError').textContent = error.defaultMessage;
+        }
+    });
+}
+</script>
+
+<script>
+    let deleteNoticeId = null;
+
+    // Delete Modal을 열고 해당 noticeId 저장
+    function openDeleteModal(button) {
+        deleteNoticeId = button.getAttribute('data-id');
+        $('#deleteModal').modal('show');
+    }
+
+    // 삭제 버튼 클릭 시 서버에 삭제 요청 전송
+    document.getElementById('confirmDeleteButton').addEventListener('click', function() {
+        if (!deleteNoticeId) return;
+
+        fetch(`/api/notice/${deleteNoticeId}`, {
+            method: 'DELETE',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        })
+        .then(response => {
+            if (response.ok) {
+                // 성공 시 페이지 새로 고침
+                window.location.reload();
+            } else {
+                alert('Delete failed');
+            }
+        })
+        .catch(error => console.error('Error:', error));
+    });
+</script>
+</body>
+
+</html>

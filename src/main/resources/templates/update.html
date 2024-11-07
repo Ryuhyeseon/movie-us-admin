@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <title>SB Admin 2 - Update</title>
+
+    <!-- Bootstrap CSS -->
+    <link href="/bootstrap/vendor/fontawesome-free/css/all.min.css" rel="stylesheet" type="text/css">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@100..900&display=swap" rel="stylesheet">
+    <link href="/bootstrap/css/sb-admin-2.min.css" rel="stylesheet">
+</head>
+
+<body class="bg-gradient-secondary">
+
+<div class="container" style="height: 100vh;">
+    <div class="row justify-content-center align-items-center d-flex" style="height: 100vh;">
+        <div class="col-xl-6 col-lg-6 col-md-9">
+            <div class="card o-hidden border-0 shadow-lg">
+                <div class="card-body p-0">
+                    <div class="col-lg-7 background" style="max-width: none;">
+                        <div class="p-5">
+                            <div class="text-center">
+                                <h1 class="h4 text-gray-900 mb-4">Update an Account!</h1>
+                            </div>
+                            <form class="user" th:action="@{/admin/update}" th:object="${admin}" method="post">
+                                <div class="form-group row">
+                                    <div class="col-sm-6 mb-3 mb-sm-0">
+                                        <input type="text" class="form-control form-control-user"
+                                               th:field="*{dept}" th:value="*{dept}"
+                                               th:classappend="${#fields.hasErrors('dept')} ? 'is-invalid' : ''"
+                                               onclick="clearValue(this)">
+                                        <div th:if="${#fields.hasErrors('dept')}" class="invalid-feedback" th:errors="*{dept}">Dept error</div>
+                                    </div>
+                                    <div class="col-sm-6">
+                                        <input type="text" class="form-control form-control-user"
+                                               th:field="*{name}" th:value="*{name}"
+                                               th:classappend="${#fields.hasErrors('name')} ? 'is-invalid' : ''"
+                                               onclick="clearValue(this)">
+                                        <div th:if="${#fields.hasErrors('name')}" class="invalid-feedback" th:errors="*{name}">Name error</div>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <input type="email" class="form-control form-control-user"
+                                           th:field="*{email}" th:value="*{email}" readonly>
+                                </div>
+<!--                                <div class="form-group">-->
+<!--                                    <input type="hidden" class="form-control form-control-user"-->
+<!--                                           th:field="*{password}">-->
+<!--                                </div>-->
+                                <button type="submit" class="btn btn-secondary btn-user btn-block" id="registerButton">
+                                    Update Account
+                                </button>
+                            </form>
+                            <hr>
+                            <div class="text-center">
+                                <a class="small text-secondary" th:href="@{/admin/passwordResetForm(email=${admin.email})}">Reset Password?</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Bootstrap core JavaScript-->
+<script src="/bootstrap/vendor/jquery/jquery.min.js"></script>
+<script src="/bootstrap/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+<script src="/bootstrap/vendor/jquery-easing/jquery.easing.min.js"></script>
+<script src="/bootstrap/js/sb-admin-2.min.js"></script>
+
+<script>
+    function clearValue(inputElement) {
+        inputElement.value = '';
+    }
+</script>
+</body>
+
+</html>

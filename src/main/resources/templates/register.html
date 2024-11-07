@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <title>SB Admin 2 - Register</title>
+
+    <!-- Bootstrap CSS -->
+    <link href="/bootstrap/vendor/fontawesome-free/css/all.min.css" rel="stylesheet" type="text/css">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@100..900&display=swap" rel="stylesheet">
+    <link href="/bootstrap/css/sb-admin-2.min.css" rel="stylesheet">
+</head>
+
+<body class="bg-gradient-secondary">
+
+<div class="container" style="height: 100vh;">
+    <div class="row justify-content-center align-items-center d-flex" style="height: 100vh;">
+        <div class="col-xl-6 col-lg-6 col-md-9">
+            <div class="card o-hidden border-0 shadow-lg">
+                <div class="card-body p-0">
+                    <div class="col-lg-7 background" style="max-width: none;">
+                        <div class="p-5">
+                            <div class="text-center">
+                                <h1 class="h4 text-gray-900 mb-4">Create an Account!</h1>
+                            </div>
+                            <form class="user" th:action="@{/admin/register}" th:object="${adminDTO}" method="post">
+                                <div class="form-group row">
+                                    <div class="col-sm-6 mb-3 mb-sm-0">
+                                        <input type="text" class="form-control form-control-user"
+                                               th:field="*{dept}" placeholder="Dept"
+                                               th:classappend="${#fields.hasErrors('dept')} ? 'is-invalid' : ''">
+                                        <div th:if="${#fields.hasErrors('dept')}" class="invalid-feedback" th:errors="*{dept}">Dept error</div>
+                                    </div>
+                                    <div class="col-sm-6">
+                                        <input type="text" class="form-control form-control-user"
+                                               th:field="*{name}" placeholder="Name"
+                                               th:classappend="${#fields.hasErrors('name')} ? 'is-invalid' : ''">
+                                        <div th:if="${#fields.hasErrors('name')}" class="invalid-feedback" th:errors="*{name}">Name error</div>
+                                    </div>
+                                </div>
+                                <div class="form-group row">
+                                    <div class="col-sm-8">
+                                        <input type="email" class="form-control form-control-user"
+                                               th:field="*{email}" placeholder="Email Address"
+                                               id="email"
+                                               th:classappend="${#fields.hasErrors('email')} ? 'is-invalid' : ''">
+                                        <div th:if="${#fields.hasErrors('email')}" class="invalid-feedback" th:errors="*{email}">Email error</div>
+                                    </div>
+                                    <div class="col-sm-4">
+                                        <button type="button" class="btn btn-secondary btn-user btn-block" onclick="checkEmailDuplication()">
+                                            중복 확인
+                                        </button>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <input type="password" class="form-control form-control-user"
+                                           th:field="*{password}" placeholder="Password"
+                                           th:classappend="${#fields.hasErrors('password')} ? 'is-invalid' : ''">
+                                    <div th:if="${#fields.hasErrors('password')}" class="invalid-feedback" th:errors="*{password}">Password error</div>
+                                </div>
+                                <button type="submit" class="btn btn-secondary btn-user btn-block" id="registerButton" disabled>
+                                    Register Account
+                                </button>
+                                <hr>
+                            </form>
+                            <hr>
+                            <div class="text-center">
+                                <a class="small text-secondary" th:href="@{/admin/forgotPassword}">Forgot Password?</a>
+                            </div>
+                            <div class="text-center">
+                                <a class="small text-secondary" th:href="@{/admin/loginForm}">Already have an account? Login!</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Bootstrap core JavaScript-->
+<script src="/bootstrap/vendor/jquery/jquery.min.js"></script>
+<script src="/bootstrap/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+<script src="/bootstrap/vendor/jquery-easing/jquery.easing.min.js"></script>
+<script src="/bootstrap/js/sb-admin-2.min.js"></script>
+
+<!-- JavaScript for email duplication check -->
+<script>
+    // 이메일 중복 확인 상태를 저장할 변수
+    let emailChecked = false;
+
+    function checkEmailDuplication() {
+        const email = document.getElementById('email').value;
+
+        // 이메일 입력란이 비어 있는 경우
+        if (email.trim() === "") {
+            document.getElementById("modalMessage").innerHTML = "이메일을 입력해 주세요.";
+            $('#messageModal').modal('show');
+            return;
+        }
+
+        fetch(`/admin/check-email?email=${email}`)
+            .then(response => response.json())
+            .then(data => {
+                if (data.isDuplicated) {
+                    document.getElementById("modalMessage").innerHTML = "이미 사용 중인 이메일입니다.";
+                    emailChecked = false; // 이메일 중복 체크 실패
+                    localStorage.setItem('emailChecked', false); // 상태 저장
+                    $('#messageModal').modal('show'); // 모달창 표시
+                    document.getElementById("registerButton").disabled = true; // 버튼 비활성화
+                } else {
+                    document.getElementById("modalMessage").innerHTML = "사용 가능한 이메일입니다.";
+                    emailChecked = true; // 이메일 중복 체크 성공
+                    localStorage.setItem('emailChecked', true); // 상태 저장
+                    document.getElementById("registerButton").disabled = false; // 버튼 활성화
+                    $('#messageModal').modal('show'); // 모달창 표시
+                }
+            })
+            .catch(error => {
+                console.error("Error:", error);
+                document.getElementById("modalMessage").innerHTML = "이메일 중복 확인 중 오류가 발생했습니다.";
+                $('#messageModal').modal('show'); // 모달창 표시
+            });
+    }
+
+    // 페이지 로드 시 이메일 중복 확인 상태 복원
+    window.onload = function() {
+        const emailCheckedStatus = localStorage.getItem('emailChecked');
+        if (emailCheckedStatus === 'true') {
+            // 이메일이 중복 체크에 성공했을 경우
+            document.getElementById("registerButton").disabled = false; // 버튼 활성화
+        } else {
+            // 이메일이 중복 체크에 실패했거나 체크하지 않았을 경우
+            document.getElementById("registerButton").disabled = true; // 버튼 비활성화
+        }
+    }
+
+    // 폼 제출 시 상태 초기화
+    document.getElementById('registrationForm').onsubmit = function() {
+        localStorage.removeItem('emailChecked'); // 상태 초기화
+    }
+</script>
+
+
+<!-- Modal -->
+<div class="modal fade" id="messageModal" tabindex="-1" role="dialog" aria-labelledby="modalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="modalLabel">알림</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body" id="modalMessage">
+                <!-- 메시지 내용이 여기에 표시됩니다 -->
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">닫기</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+</body>
+
+</html>
