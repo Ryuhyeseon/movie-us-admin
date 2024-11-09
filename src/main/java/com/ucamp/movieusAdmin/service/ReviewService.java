@@ -48,18 +48,14 @@ public class ReviewService {
         ReviewResponseDTO responseDTO = modelMapper.map(review, ReviewResponseDTO.class);
 
         if (movie!=null) {
-            responseDTO.setTmdbId(movie.getTmdbId());
             responseDTO.setTitle(movie.getTitle());
         } else {
             System.out.println("movie=null");
                 try {
                     Map<String, Object> movieDetails = getMovieDetailsFromApi(review.getTmdbId());
-                    responseDTO.setTmdbId(review.getTmdbId());
                     responseDTO.setTitle((String) movieDetails.get("title"));
                     Map<String, Object> collection = (Map<String, Object>) movieDetails.get("belongs_to_collection");
                     if (collection != null) {
-                        System.out.println("if collection");
-                        responseDTO.setTmdbId(((Number) collection.get("id")).longValue());
                         responseDTO.setTitle((String) collection.get("name"));
                     }
                 } catch (Exception e) {
