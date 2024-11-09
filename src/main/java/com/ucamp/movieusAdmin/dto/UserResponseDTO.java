@@ -14,6 +14,5 @@ public class UserResponseDTO {
     private String userPhone;          // 사용자 전화번호
     private LocalDateTime createDt;    // 생성일
     private LocalDateTime updateDt;    // 수정일
-    private String role;               // 사용자 역할
 
 }

@@ -59,7 +59,6 @@
                                     <th>userPhone</th>
                                     <th>createDt</th>
                                     <th>updateDt</th>
-                                    <th>role</th>
                                     <th>Delete</th>
                                 </tr>
                                 </thead>
@@ -72,7 +71,6 @@
                                     <td th:text="${user.userPhone}">userPhone</td>
                                     <td th:text="${#temporals.format(user.createDt, 'yyyy-MM-dd')}">createDt</td>
                                     <td th:text="${#temporals.format(user.updateDt, 'yyyy-MM-dd')}">updateDt</td>
-                                    <td th:text="${user.role}">role</td>
                                     <td>
                                         <button type="button" class="btn btn-danger"
                                                 th:data-userNum="${user.userNum}"
