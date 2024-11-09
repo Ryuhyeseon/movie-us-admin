@@ -20,10 +20,8 @@ public class ReviewEntity {
     @ManyToOne
     @JoinColumn(name = "user_num", nullable = false)
     private UserEntity user; // 사용자 (User 테이블 참조)
-
-    @ManyToOne
-    @JoinColumn(name = "movie_Id", referencedColumnName = "tmdbId", nullable = false)
-    private Movie movieId; // 영화 ID (외래키, Movie 테이블 참조)
+    @Column(name = "tmdb_id")
+    private Long tmdbId; // 영화 TMDB ID
 
     @Column(nullable = false)
     private BigDecimal rating; // 평점 (1.0 - 10.0)
@@ -33,5 +31,16 @@ public class ReviewEntity {
 
     @Column(name = "review_date", nullable = false)
     private LocalDateTime reviewDate; // 리뷰 작성 날짜
-}
 
+    @Column(name = "report_user_email")
+    private String reportUserEmail;
+
+    @Column(nullable = false)
+    private Boolean report; // 신고
+
+    @Column(name = "report_comment", columnDefinition = "TEXT")
+    private String reportComment; // 신고 내용
+
+    @Column(name = "review_report_date")
+    private LocalDateTime reviewReportDate; // 리뷰 신고 날짜
+}

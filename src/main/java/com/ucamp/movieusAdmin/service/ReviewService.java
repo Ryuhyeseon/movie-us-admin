@@ -3,14 +3,17 @@ package com.ucamp.movieusAdmin.service;
 import com.ucamp.movieusAdmin.dto.ReviewResponseDTO;
 import com.ucamp.movieusAdmin.entity.Movie;
 import com.ucamp.movieusAdmin.entity.ReviewEntity;
+import com.ucamp.movieusAdmin.repository.MovieRepository;
 import com.ucamp.movieusAdmin.repository.ReviewRepository;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.client.RestTemplate;
 
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
@@ -19,8 +22,9 @@ import java.util.stream.Collectors;
 public class ReviewService {
 
     private final ReviewRepository reviewRepository;
+    private final MovieRepository movieRepository;
     private final ModelMapper modelMapper;
-
+    private final RestTemplate restTemplate;
 
     public List<ReviewResponseDTO> getReviewList() {
         Sort sort = Sort.by(Sort.Direction.ASC, "reviewId");
@@ -35,14 +39,40 @@ public class ReviewService {
     }
 
 
+    private final String API_KEY = "40405429a36ddf7b1d4337a022992fbc";
+    private final String BASE_URL = "https://api.themoviedb.org/3/movie/";
+
     private ReviewResponseDTO convertToResponseDTO(ReviewEntity review) {
-        Movie movie = review.getMovieId();
+        Movie movie = movieRepository.findByTmdbId(review.getTmdbId())
+                .orElse(null);  // 없으면 null 반환
         ReviewResponseDTO responseDTO = modelMapper.map(review, ReviewResponseDTO.class);
-        if (movie != null) {
-            responseDTO.setTmdbId(movie.getTmdbId()); // TMDb ID 추가
-            responseDTO.setTitle(movie.getTitle()); // 타이틀 추가
-            responseDTO.setPosterPath(movie.getPosterPath()); // 포스터 경로 추가
-        }
+
+        if (movie!=null) {
+            responseDTO.setTmdbId(movie.getTmdbId());
+            responseDTO.setTitle(movie.getTitle());
+        } else {
+            System.out.println("movie=null");
+                try {
+                    Map<String, Object> movieDetails = getMovieDetailsFromApi(review.getTmdbId());
+                    responseDTO.setTmdbId(review.getTmdbId());
+                    responseDTO.setTitle((String) movieDetails.get("title"));
+                    Map<String, Object> collection = (Map<String, Object>) movieDetails.get("belongs_to_collection");
+                    if (collection != null) {
+                        System.out.println("if collection");
+                        responseDTO.setTmdbId(((Number) collection.get("id")).longValue());
+                        responseDTO.setTitle((String) collection.get("name"));
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+
         return responseDTO;
     }
+
+    private Map<String, Object> getMovieDetailsFromApi(Long tmdbId) {
+        String url = BASE_URL + tmdbId + "?api_key=" + API_KEY + "&language=ko-KR";
+        return restTemplate.getForObject(url, Map.class);
+    }
+
 }

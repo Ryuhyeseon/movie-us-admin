@@ -2,47 +2,36 @@
 <html xmlns:th="http://www.thymeleaf.org">
 
 <head>
-
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <meta name="description" content="">
     <meta name="author" content="">
-
     <title>Review Tables</title>
-
     <!-- Custom fonts for this template -->
     <link href="/bootstrap/vendor/fontawesome-free/css/all.min.css" rel="stylesheet" type="text/css">
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@100..900&display=swap" rel="stylesheet">
-
     <!-- Custom styles for this template -->
     <link href="/bootstrap/css/sb-admin-2.min.css" rel="stylesheet">
-
     <!-- Custom styles for this page -->
     <link href="/bootstrap/vendor/datatables/dataTables.bootstrap4.min.css" rel="stylesheet">
-
 </head>
 
 <body id="page-top">
 
-<!-- Page Wrapper -->
 <div id="wrapper">
-
     <!-- Sidebar -->
     <div th:replace="~{sidebar}"></div>
 
     <!-- Content Wrapper -->
     <div id="content-wrapper" class="d-flex flex-column">
-
         <!-- Main Content -->
         <div id="content">
-
             <!-- Topbar -->
             <div th:replace="~{topbar}"></div>
 
             <!-- Begin Page Content -->
             <div class="container-fluid">
-
                 <!-- Page Heading -->
                 <h1 class="h3 mb-2 text-gray-800">Review</h1>
                 <!-- DataTales Example -->
@@ -54,30 +43,34 @@
                                 <tr>
                                     <th>reviewId</th>
                                     <th>userEmail</th>
-                                    <th>movieId</th>
                                     <th>tmdbId</th>
                                     <th>title</th>
                                     <th>rating</th>
                                     <th>comment</th>
                                     <th>reviewDate</th>
-                                    <th>Delete</th>
+                                    <th>reportTorF</th>
+                                    <th>delete</th>
                                 </tr>
                                 </thead>
                                 <tbody>
                                 <tr th:each="review : ${reviews}">
                                     <td th:text="${review.reviewId}">reviewId</td>
                                     <td th:text="${review.user.userEmail != null ? review.user.userEmail : review.user.kakaoEmail}">userEmail</td>
-                                    <td th:text="${review.movieId}">movieId</td>
                                     <td th:text="${review.tmdbId}">tmdbId</td>
                                     <td th:text="${review.title}">title</td>
                                     <td th:text="${review.rating}">rating</td>
                                     <td th:text="${review.comment}">comment</td>
                                     <td th:text="${#temporals.format(review.reviewDate, 'yyyy-MM-dd')}">reviewDate</td>
+                                    <td th:text="${review.report}">reportTorF</td>
                                     <td>
                                         <button type="button" class="btn btn-danger"
                                                 th:data-reviewId="${review.reviewId}"
                                                 th:data-userEmail="${review.user.userEmail != null ? review.user.userEmail : review.user.kakaoEmail}"
-                                                th:data-movieId="${review.movieId}"
+                                                th:data-title="${review.title}"
+                                                th:data-reportUserEmail="${review.reportUserEmail}"
+                                                th:data-reportComment="${review.reportComment}"
+                                                th:data-reviewReportDate="${#temporals.format(review.reviewReportDate, 'yyyy-MM-dd')}"
+                                                th:if="${review.report}"
                                                 onclick="openDeleteModal(this)">삭제</button>
                                     </td>
                                 </tr>
@@ -86,12 +79,8 @@
                         </div>
                     </div>
                 </div>
-
             </div>
-            <!-- /.container-fluid -->
-
         </div>
-        <!-- End of Main Content -->
 
         <!-- Footer -->
         <footer class="sticky-footer bg-white">
@@ -101,40 +90,15 @@
                 </div>
             </div>
         </footer>
-        <!-- End of Footer -->
-
     </div>
-    <!-- End of Content Wrapper -->
-
 </div>
-<!-- End of Page Wrapper -->
 
 <!-- Scroll to Top Button-->
 <a class="scroll-to-top rounded" href="#page-top">
     <i class="fas fa-angle-up"></i>
 </a>
 
-<!-- Logout Modal-->
-<div class="modal fade" id="logoutModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
-     aria-hidden="true">
-    <div class="modal-dialog" role="document">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="exampleModalLabel">Ready to Leave?</h5>
-                <button class="close" type="button" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">×</span>
-                </button>
-            </div>
-            <div class="modal-body">Select "Logout" below if you are ready to end your current session.</div>
-            <div class="modal-footer">
-                <button class="btn btn-secondary" type="button" data-dismiss="modal">Cancel</button>
-                <a class="btn btn-primary" href="login.html">Logout</a>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- Modal 3 for Delete-->
+<!-- Modal for Delete-->
 <div class="modal fade" id="deleteModal" tabindex="-1" role="dialog" aria-labelledby="modalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered" role="document">
         <div class="modal-content">
@@ -144,8 +108,7 @@
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
-            <div class="modal-body" id="modalMessage">
-            </div>
+            <div class="modal-body" id="modalMessage" style="text-align: center;"></div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-danger" id="confirmDeleteButton">삭제</button>
             </div>
@@ -156,60 +119,63 @@
 <!-- Bootstrap core JavaScript-->
 <script src="/bootstrap/vendor/jquery/jquery.min.js"></script>
 <script src="/bootstrap/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
-
-<!-- Core plugin JavaScript-->
 <script src="/bootstrap/vendor/jquery-easing/jquery.easing.min.js"></script>
-
-<!-- Custom scripts for all pages-->
 <script src="/bootstrap/js/sb-admin-2.min.js"></script>
-
-<!-- Page level plugins -->
 <script src="/bootstrap/vendor/datatables/jquery.dataTables.min.js"></script>
 <script src="/bootstrap/vendor/datatables/dataTables.bootstrap4.min.js"></script>
-
-<!-- Page level custom scripts -->
 <script src="/bootstrap/js/demo/datatables-demo.js"></script>
 
 <script>
     let deleteReviewId = null;
     let deleteUserEmail = null;
-    let deleteMovieId = null;
+    let deleteTitle = null;
+    let deleteReportUserEmail = null;
+    let deleteReportComment = null;
+    let deleteReviewReportDate = null;
 
-    // Delete Modal을 열고 해당 noticeId 저장
+    // Delete Modal을 열고 해당 reviewId 저장
     function openDeleteModal(button) {
+        console.log("openDeleteModal called"); // 디버깅용
         deleteReviewId = button.getAttribute('data-reviewId');
         deleteUserEmail = button.getAttribute('data-userEmail');
-        deleteMovieId = button.getAttribute('data-movieId');
-
+        deleteTitle = button.getAttribute('data-title');
+        deleteReportUserEmail = button.getAttribute('data-reportUserEmail');
+        deleteReportComment = button.getAttribute('data-reportComment');
+        deleteReviewReportDate = button.getAttribute('data-reviewReportDate');
 
         // 모달 메시지 업데이트
         const modalMessage = document.getElementById('modalMessage');
-        modalMessage.innerHTML = `(${deleteMovieId}: ${deleteUserEmail}) 님이 작성한 ${deleteReviewId}번 리뷰를 <br>정말 삭제하시겠습니까?`;
+        modalMessage.innerHTML = `(${deleteTitle}: ${deleteUserEmail}) 님이 작성한 ${deleteReviewId}번 리뷰를<br/>`
+            + `${deleteReviewReportDate} : ${deleteReportUserEmail} 님이<br/>`
+            + `"${deleteReportComment}" 사유로 신고하였습니다.<br/>`
+            + `해당 리뷰를 정말 삭제하시겠습니까?`;
 
+        // 모달 열기
         $('#deleteModal').modal('show');
     }
 
-        // 삭제 버튼 클릭 시 서버에 삭제 요청 전송
-        document.getElementById('confirmDeleteButton').addEventListener('click', function() {
-            if (!deleteReviewId) return;
+    // 삭제 버튼 클릭 시 서버에 삭제 요청 전송
+    document.getElementById('confirmDeleteButton').addEventListener('click', function() {
+        if (!deleteReviewId) return;
 
-            fetch(`/review/${deleteReviewId}`, {
-                method: 'DELETE',
-                headers: {
-                    'Content-Type': 'application/json'
-                }
-            })
-            .then(response => {
-                if (response.ok) {
-                    // 성공 시 페이지 새로 고침
-                    window.location.reload();
-                } else {
-                    alert('Delete failed');
-                }
-            })
-            .catch(error => console.error('Error:', error));
-        });
+        fetch(`/review/${deleteReviewId}`, {
+            method: 'DELETE',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        })
+        .then(response => {
+            if (response.ok) {
+                // 성공 시 페이지 새로 고침
+                window.location.reload();
+            } else {
+                alert('Delete failed');
+            }
+        })
+        .catch(error => console.error('Error:', error));
+    });
 </script>
+
 </body>
 
 </html>
