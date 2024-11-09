@@ -20,6 +20,7 @@ public class ReviewEntity {
     @ManyToOne
     @JoinColumn(name = "user_num", nullable = false)
     private UserEntity user; // 사용자 (User 테이블 참조)
+
     @Column(name = "tmdb_id")
     private Long tmdbId; // 영화 TMDB ID
 
