@@ -91,12 +91,17 @@ var myLineChart = new Chart(ctx, {
 fetch('/api/users/monthly-registrations') // API 엔드포인트 호출
   .then(response => response.json())
   .then(data => {
-    // 월별 데이터를 차트 데이터로 변환
+    // 월별 데이터를 차트 데이터로 변환 (누적 계산)
     const labels = myLineChart.data.labels; // ["2024-01", ..., "2024-12"]
-    const signupCounts = labels.map(label => data[label] || 0); // 데이터 없으면 0으로 대체
+    let cumulativeCount = 0; // 누적 회원 수 초기값
+    const signupCounts = labels.map(label => {
+      cumulativeCount += data[label] || 0; // 현재 월의 회원가입 수 추가
+      return cumulativeCount; // 누적 회원 수 반환
+    });
 
     // 차트 데이터 업데이트
     myLineChart.data.datasets[0].data = signupCounts;
     myLineChart.update(); // 차트 다시 그리기
   })
   .catch(error => console.error('Error fetching data:', error));
+
